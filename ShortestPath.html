@@ -1,0 +1,328 @@
+<!DOCTYPE HTML>
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Shortest Path</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<a href="index.html" class="logo">Ani Tapia Portfolio</a>
+					</header>
+
+					<nav id="nav">
+						<ul class="links">
+							<li><a href="index.html#intro">About Me</a></li>
+							<li><a href="index.html#Class Assignments">Class Assignments</a></li>
+							<li><a href="index.html#Education">Education</a></li>
+							<li><a href="#footer">Contact</a></li>
+						</ul>
+					</nav>
+
+
+				<!-- Main -->
+					<div id="main">
+
+						<!-- Post -->
+							<section class="post">
+								<header class="major">
+									<h1>Shortest Path</h1>
+									<P>This java program calculates the shortest path between two nodes in a graph</P>
+								</header>
+								<p>This program reads in a file that states the nodes in the graph, the neighbors of the nodes, and the weight(cost) it would take
+									to go to the neighbor. Based on the weights, the program then determines the shortest path(least total weight of all the pasths)
+									 from one node to another.
+								</p>
+								<h4>Edge.java</h4>
+								<pre>
+									<code>
+public class Edge{
+	private String p;
+	private String v;
+	private double weight;
+	public Edge(String a, String b){
+		p = a;
+		v = b;
+		weight = 1;
+	}
+	public Edge(String a, String b, double w){
+		p = a;
+		v = b;
+		weight = w;
+	}
+	public String getDest(){ return v;}
+	public double getWeight(){ return weight;}
+	public String getSource() { return p;}
+	}
+									</code>
+								</pre>
+								<p>Edges are what connects nodes. Each edge has a parent(p), a destination(v) and a the weight(cost) it would
+									take to go from the parent to the destination.
+								</p>
+								<h4>Node.java</h4>
+								<pre>
+									<code>
+import java.util.ArrayList;
+
+public class Node{
+	private String source;
+	private ArrayList<Edge> neighbors;
+	public Node(String a){
+		source = a;
+		neighbors = new ArrayList<Edge>();
+	}
+	public Node(String a, ArrayList<Edge> b){
+		source = a;
+		neighbors = b;
+	}
+	public void addEdge(Edge x){neighbors.add(x);}
+	public String getSource(){return source;}
+	public int getNnum(){return neighbors.size();}
+	public Edge getNeighbor(int i){return neighbors.get(i);}
+	public boolean equalsV(String s){return source.equals(s);}
+	public String toString(){
+		String ret = source+"("+neighbors.size()+"):";
+		if (neighbors.size()==0) return ret+" null\n";
+		Edge tmp = neighbors.get(0);
+		ret += tmp.getDest() + "("+tmp.getWeight()+")";
+		for(int i = 1; i< neighbors.size(); i++){
+			tmp = neighbors.get(i);
+			ret += ", "+ tmp.getDest() + "("+tmp.getWeight()+")";
+		}
+		ret+="\n";
+		return ret;
+	}
+}
+										
+									</code>
+								</pre>
+								<h4>StackElement.java</h4>
+								<pre>
+									<code>
+public class StackElement {
+	private Node c;
+	private double cLength;
+	private String parent;
+	public StackElement(Node n, Double l){
+		c = n;
+		cLength = l;
+		parent = "null";
+	}
+	public StackElement(Node n, double l, String w){
+		c = n;
+		cLength = l;
+		parent = w;
+	}
+	public Node getNode(){ return c;}
+	public double getLength(){ return cLength;}
+	public String getParent() { return parent;}
+}
+									</code>
+								</pre>
+								<h4>Graph.java</h4>
+								<pre>
+									<code>
+import java.util.Scanner;
+import java.util.ArrayList;
+import java.io.*;
+import java.util.Stack;
+
+import java.util.NoSuchElementException;
+
+
+public class Graph{
+private ArrayList< Node> head = new ArrayList< Node>();
+
+public Graph(String filename, String delimiter){
+	File inputFile = new File (filename);
+	try {   
+		Scanner input = new Scanner(inputFile);
+
+		while(input.hasNext()){
+			String line = input.nextLine();
+			String [] info = line.split(delimiter);
+			Node tmp = new Node(info[0]);
+			for(int i = 1; i<=info.length/2; i++){
+			Edge e = new Edge(info[0], info[2*i-1], Double.parseDouble(info[2*i]));
+			tmp.addEdge(e);
+			}
+			head.add(tmp);
+		}
+
+		input.close();
+	}
+	catch (FileNotFoundException e)
+	{
+		System.out.println("file reading fails.");
+	}
+}
+
+
+public String toString(){
+String ret ="";
+for(int i = 0; i< head.size(); i++){
+	Node tmp = head.get(i);
+	ret += tmp.toString();
+}
+return ret;
+}
+
+private int contains(String s){
+	Node tmp; 
+	for(int i = 0; i< head.size(); i++){
+		tmp = head.get(i);
+		if(tmp.equalsV(s)) return i;
+	}
+	return -1;
+}
+
+private boolean contains(ArrayList< Edge> record, String n){
+	if(record == null || n==null) 
+		throw new NoSuchElementException("Edges are null");
+	for(int i = 0; i< record.size(); i++){
+		Edge tmp = record.get(i);
+		if(tmp.getDest().equals(n)) return true;
+	}
+	return false;
+}
+	public static boolean stackContains(String a, ArrayList< StackElement> stack)
+	{
+		for(int i = 0; i < stack.size(); i++)
+		{
+			StackElement tmp = stack.get(i);
+			if(a.equals(tmp.getNode().getSource()))return true;
+		}
+		return false;
+	}
+	public String seize_path(ArrayList< StackElement> stack)//Step9
+	{
+		String shortest = "Shortest Path: ";
+		ArrayList< String> nodes = new ArrayList< String>();
+		String current = stack.get(stack.size() - 1).getNode().getSource();
+		nodes.add(current);
+		String parent = stack.get(stack.size() - 1).getParent();
+		while(!parent.equals("null"))
+		{
+			current = parent;
+			for(int i = 0; i < stack.size(); i++)
+			{
+			if(current.equals(stack.get(i).getNode().getSource()))
+			{
+				nodes.add(current);
+				parent = stack.get(i).getParent();
+				break;
+			}
+			}
+		}
+		String path = "";
+		for(int i = nodes.size() - 1; i >= 0; i--)
+		{
+			if(i == 0)path = path + nodes.get(i);
+			else path = path + nodes.get(i) + "=>";
+		}
+		return shortest + path;
+	}
+	
+	public ArrayList< StackElement> shortest_path(String s, String t){
+	ArrayList< StackElement> stack = new ArrayList< StackElement>();
+	double min, hop;
+	int index;
+	Node c,  rn = null, rp = null;
+	c = head.get(contains(s));//step1
+	StackElement se;
+	se = new StackElement(c,0.0);
+	stack.add(se);//step1
+	if(s.equals(t))return stack;//end of Step1
+	while(!c.getSource().equals(t)) //step2 - step8
+	{
+		min = 0.0; //step2
+		hop = Integer.MAX_VALUE; //step2
+		index = 0; //step2
+		while(index < stack.size())//step3 - step7
+		{
+			se = stack.get(index);//step3
+			Node u = se.getNode();//step3
+			double uLength = se.getLength();//step3
+			String w = se.getParent();//step3
+			for(int i = 0; i < u.getNnum(); i++)//step4 - step6
+			{
+			Edge v = u.getNeighbor(i);//step4
+			if( !stackContains(v.getDest(),stack) && v.getWeight() + uLength < hop)//step4
+			{
+				hop = uLength + v.getWeight();//step5
+				min = uLength + v.getWeight();//step5
+				rn = head.get(contains(v.getDest()));//step5
+				rp = u;//step5
+			}
+			//step6:go to step 4 until all the neighbors of u have been tried
+			}
+			index++;//step7
+		}
+		c = rn;//step8
+		se = new StackElement(c,min, rp.getSource());//step8
+		stack.add(se);//step8
+	}
+	return stack;
+}
+
+public static void main(String args[]){
+Graph g = new Graph("src/g1.txt", " ");
+System.out.println(g);
+System.out.println(g.seize_path(g.shortest_path("1", "6")));
+}
+}
+									</code>
+								</pre>
+								<h4>Video Demo</h4>
+								<video width="750" height="450" controls>
+									<source src="videos/ShortestPath.mp4" type="video/mp4">
+								  Your browser does not support the video tag.
+								</video>
+								<ul class="actions special">
+									<li><a href="ToDoList.html" class="button">Previous Assignment</a></li>
+									<li><a href="TotalSemesters.html" class="button">Next Assignment</a></li>
+								</ul>
+							</section>
+
+					</div>
+
+				<!-- Footer -->
+				<footer id="footer">
+					<section class="split contact">
+						<section>
+							<h3>Email</h3>
+							<p><a href="#">tapia.ani28@gmail.com</a></p>
+						</section>
+					</section>
+				</footer>
+
+				<!-- Copyright -->
+					<div id="copyright">
+						<ul><li>&copy; Untitled</li><li>Design: <a href="https://html5up.net">HTML5 UP</a></li></ul>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

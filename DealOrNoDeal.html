@@ -1,0 +1,259 @@
+<!DOCTYPE HTML>
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Deal or No Deal</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<a href="index.html" class="logo">Ani Tapia Portfolio</a>
+					</header>
+
+					<nav id="nav">
+						<ul class="links">
+							<li><a href="index.html#intro">About Me</a></li>
+							<li><a href="index.html#Class Assignments">Class Assignments</a></li>
+							<li><a href="index.html#Education">Education</a></li>
+							<li><a href="#footer">Contact</a></li>
+						</ul>
+					</nav>
+
+
+				<!-- Main -->
+					<div id="main">
+
+						<!-- Post -->
+							<section class="post">
+								<header class="major">
+									<h1>Deal or No Deal</h1>
+									<p>This python program simulates the classic Deal or no Deal game</p>
+								</header>
+								<p>Just like the real life version of this game, there are 26 cases with each one containing a value between a $0.01 and $1,000,000. 
+									The user first chooses their own case from the available 26 hoping to select the one that has the million dollar prize.
+									The user won't actually know what's in their case until the end of the game. 
+									After the user selects their case, They then play a series of rounds where they open the remaing cases. After the end of each round,
+									the user will get a call from the banker with an offer where user can respond with Deal or No Deal. If the user accets the offer the game
+									will end. But first, the user will open their own case to see if they made the right choice. If the user says No Deal, they will continue
+									to the next round and open more cases. 
+								</p>
+								<h4>Deal or No Deal.py</h4>
+								<pre>
+									<code>
+import math
+import random
+import os
+
+def bankerOffer(cases, round):
+	global playerValue
+	values = list(cases.values())
+	values.append(playerValue)
+	total = 0
+	for x in values:
+		total = total + x
+	total = total / len(values)
+	if round < 6:
+		total = (total * random.randrange(20, 26)) / 100
+	elif round == 6:
+		total = (total * random.randrange(30, 45)) / 100
+	elif round == 7:
+		total = (total * random.randrange(40, 55)) / 100
+	elif round == 8:
+		total = (total * random.randrange(50, 65)) / 100
+	elif round == 9:
+		total = (total * random.randrange(60, 75)) / 100
+	return math.ceil(total)
+
+
+def printValues(values):
+	for x in values:
+		print("${:0,}".format(x), end=', ')
+
+
+def talkWithBanker(offer, round):
+	global oldValue, playerValue
+	keys = list(cases.keys())
+	values = list(cases.values())
+	values.append(playerValue)
+	values.sort()
+	print("\nThe remaining values are: \n")
+	printValues(values)
+	print("\n\nYour case:",playerKey)
+	print("\nThe round is over. Let's see what offer you will receive from the banker.\n")
+	print("The banker is willing to offer you ${:0,}".format(offer))
+	uIn = input("Deal(Y) or No Deal(any): ")
+	if uIn[0].upper() == 'Y':
+		oldValue = playerValue
+		playerValue = offer
+		print("\nYou've reached a deal with the banker for ${:0,}".format(offer))
+		uIn = input("Enter any key to find out what was in your case: ")
+		print("The value in your case", playerKey, "= ${:0,}".format(oldValue))
+	else:
+		os.system('CLS')
+		print("\nYou have rejected the offer from the banker")
+		gameRound(round + 1)
+
+
+def openCases(amount):
+	global playerValue, cases
+
+	for x in range(amount):
+		keys = list(cases.keys())
+		values = list(cases.values())
+		values.append(playerValue)
+		values.sort()
+		print("\nThe remaining values are: \n")
+		printValues(values)
+		print("\n\nYou have", amount - x,
+				"cases left to open before the banker makes an\noffer. The current available cases to open are: \n")
+		print(keys)
+		print("\nYour case:",playerKey)
+		keyOpened = int(input("\n\nSelect the case you wish to open: "))
+		valueOpened = cases[keyOpened]
+		os.system('CLS')
+		print("\nThe value in case", keyOpened, "= ${:0,}".format(valueOpened))
+		cases.pop(keyOpened)
+
+
+def gameRound(round):
+	global playerValue, playerKey, cases, oldValue, oldKey
+	if round == 1:
+		openCases(6)
+		offer = bankerOffer(cases, round)
+		talkWithBanker(offer, round)
+	elif round == 2:
+		openCases(5)
+		offer = bankerOffer(cases, round)
+		talkWithBanker(offer, round)
+	elif round == 3:
+		openCases(4)
+		offer = bankerOffer(cases, round)
+		talkWithBanker(offer, round)
+	elif round == 4:
+		openCases(3)
+		offer = bankerOffer(cases, round)
+		talkWithBanker(offer, round)
+	elif round == 5:
+		openCases(2)
+		offer = bankerOffer(cases, round)
+		talkWithBanker(offer, round)
+	elif round <= 9:
+		openCases(1)
+		offer = bankerOffer(cases, round)
+		talkWithBanker(offer, round)
+	elif round == 10:
+		print("\nAt this point only two cases and values remain:\n")
+		values = list(cases.values())
+		values.append(playerValue)
+		values.sort()
+		printValues(values)
+		print("\nThere is one final offer\nThe banker will let you switch cases")
+		uIn = input("Deal(Y) or No Deal(any): ")
+		os.system('CLS')
+		if uIn[0].upper() == 'Y':
+			oldValue = playerValue
+			keys = list(cases.keys())
+			oldKey = playerKey
+			playerKey = keys[0]
+			playerValue = cases[playerKey]
+			print('\nYou have reached a deal with the banker to switch cases')
+			uIn = input("Enter any key to find out what was in your case: ")
+			print("The value in your new case", playerKey, "= ${:0,}".format(playerValue))
+			print("The value in your old case", oldKey, "= ${:0,}".format(oldValue))
+
+		else:
+			oldValue = values[0]
+			print("\nYou have rejected the offer to switch, and have stuck by your case all the way to the end")
+			uIn = input("Enter any key to find out what was in your case: ")
+			print("The value in your case", playerKey, "= ${:0,}".format(playerValue))
+
+
+def playGame():
+	global playerValue,playerKey, cases, values, keys, oldValue, oldKey
+	values = [0.01, 1, 5, 10, 25, 50, 75, 100, 200, 300, 400, 500, 750, 1000, 5000, 10000, 25000, 50000, 75000, 100000,
+			200000, 300000, 400000, 500000, 750000, 1000000]
+	random.shuffle(values)
+
+	cases = {}
+
+	for x in range(len(values)):
+		cases[x + 1] = values[x]
+
+	keys = list(cases.keys())
+
+	os.system('CLS')
+	print("Time to play Deal or No Deal!!\n\nThe values are:\n")
+	values.sort()
+	printValues(values)
+	print("\n\nThe available cases are:\n")
+	print(keys)
+
+	playerKey = int(input("\n\nPlease enter the case you wish to own: "))
+	playerValue = cases[playerKey]
+	oldValue = playerValue
+	cases.pop(playerKey)
+	os.system('CLS')
+	print("\nYou chose case", playerKey)
+	gameRound(1)
+	uIn = input("\nEnter 0 to play another game or any key to quit: ")
+	if uIn == "0":
+		playGame()
+	else:
+		print("\nHave a wonderful day!")
+	
+playGame()									
+									</code>
+								</pre>
+								<h4>Video Demo</h4>
+								<video width="750" height="450" controls>
+									<source src="videos/DealOrNoDeal.mp4" type="video/mp4">
+								  Your browser does not support the video tag.
+								</video>
+								<ul class="actions special">
+									<li><a href="EightBall.html"  class="button">Previous Assignment</a></li>
+									<li><a href="ToDoList.html"  class="button">Next Assignment</a></li>
+								</ul>
+							</section>
+
+					</div>
+
+				<!-- Footer -->
+				<footer id="footer">
+					<section class="split contact">
+						<section>
+							<h3>Email</h3>
+							<p><a href="#">tapia.ani28@gmail.com</a></p>
+						</section>
+					</section>
+				</footer>
+
+				<!-- Copyright -->
+					<div id="copyright">
+						<ul><li>&copy; Untitled</li><li>Design: <a href="https://html5up.net">HTML5 UP</a></li></ul>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

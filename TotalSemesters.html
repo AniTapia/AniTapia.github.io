@@ -1,0 +1,257 @@
+<!DOCTYPE HTML>
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Total Semesters</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<a href="index.html" class="logo">Ani Tapia Portfolio</a>
+					</header>
+
+					<nav id="nav">
+						<ul class="links">
+							<li><a href="index.html#intro">About Me</a></li>
+							<li><a href="index.html#Class Assignments">Class Assignments</a></li>
+							<li><a href="index.html#Education">Education</a></li>
+							<li><a href="#footer">Contact</a></li>
+						</ul>
+					</nav>
+
+
+				<!-- Main -->
+					<div id="main">
+
+						<!-- Post -->
+							<section class="post">
+								<header class="major">
+									<h1>Total Semesters</h1>
+									<p>This java program determines the amount of semesters needed to take all of the <a href="https://www.wcupa.edu/sciences-mathematics/computerScience/undergradCourses.aspx" target="_blank">computer science courses</a> at West Chester University</p>
+								</header>
+								<p>This program reads in a file that states the computer science courses and their prerequisites.
+									Based on these prerequisites, the program displays to the user what courses will be taken in each semester.
+									There is no limit as to how many courses the user can take in each semester.
+								</p>
+								<h4>Edge.java</h4>
+								<pre>
+									<code>
+public class Edge{
+	private String p;
+	private String v;
+	public Edge(String a, String b){
+		p = a;
+		v = b;
+	}
+	
+	public String getDest(){ return v;}
+	public String getSource() { return p;}
+	}
+									</code>
+								</pre>
+								<h4>Node.java</h4>
+								<pre>
+									<code>
+import java.util.ArrayList;
+
+public class Node{
+private String source;
+private ArrayList< Edge> prerequisites;
+public Node(String a){
+source = a;
+prerequisites = new ArrayList< Edge>();
+}
+
+public void addEdge(Edge x){
+	prerequisites.add(x);}
+public String getSource(){return source;}
+public int getSize(){return prerequisites.size();}
+public Edge getPrerequisite(int i){return prerequisites.get(i);}
+public String toString(){
+	String pre = "";
+	if(prerequisites.size() == 0)return "CSC " + source + " Prerequisites: null\n";
+	Edge tmp;
+	for(int i = 0; i < prerequisites.size(); i++)
+	{
+		tmp = prerequisites.get(i);
+		pre += " CSC " + tmp.getSource();
+	}
+	return "CSC " + source + " Prerequisites:" + pre + "\n";
+}
+public int contains(String s){
+	Edge tmp;
+	for(int i = 0; i< prerequisites.size(); i++){
+		tmp = prerequisites.get(i);
+		if(tmp.getSource().equals(s)) return i;
+	}
+	return -1;
+}
+public void removeEdge(int i){
+	prerequisites.remove(i);
+}
+}
+
+									</code>
+								</pre>
+								<h4>Graph.java</h4>
+								<pre>
+									<code>
+import java.util.Scanner;
+import java.util.ArrayList;
+import java.io.*;
+
+import java.util.NoSuchElementException;
+
+
+public class Graph{
+private ArrayList< Node> courses = new ArrayList< Node>();
+
+public Graph(String filename){
+File inputFile = new File (filename);
+try {   
+	Scanner input = new Scanner(inputFile);
+
+	while(input.hasNext()){
+		String line = input.nextLine();
+		String [] info = line.split(" ");
+		Node tmp = new Node(info[0]);
+		for(int i = 1; i< info.length; i++){
+			Edge e = new Edge(info[i], info[0]);
+			tmp.addEdge(e);
+		}
+		courses.add(tmp);
+	}
+
+	input.close();
+}
+catch (FileNotFoundException e)
+{
+	System.out.println("file reading fails.");
+}
+}
+
+
+public String toString(){
+String ret ="";
+for(int i = 0; i< courses.size(); i++){
+Node tmp = courses.get(i);
+ret += tmp.toString();
+}
+return ret;
+}
+
+public ArrayList< Node> getNoPreRecCourses() {//return a list of courses with no prerequisites
+ArrayList< Node> tmp_coursers = new ArrayList< Node>();
+for(int i = 0; i < courses.size(); i++)
+{
+	Node tmp = courses.get(i);
+	if(tmp.getSize() == 0)tmp_coursers.add(tmp);
+}
+return tmp_coursers;
+}
+public ArrayList< Node> getOutgoingCourses(Node n)//input a node, and return its outgoing courses
+{
+ArrayList< Node> outgoing_Courses = new ArrayList< Node>();
+for(int i = 0; i < courses.size(); i++)
+{
+	Node tmpN = courses.get(i);
+	for(int j = 0; j < tmpN.getSize(); j++)
+	{
+		Edge tmpE = tmpN.getPrerequisite(j);
+		if(tmpE.getSource().equals(n.getSource()))outgoing_Courses.add(tmpN);
+	}
+}
+return outgoing_Courses;
+}
+
+public void total_Semesters()
+{
+int total = 0;
+int semester = 1;
+ArrayList< Node> noIncoming = new ArrayList< Node>();
+ArrayList< Node> outgoing = new ArrayList< Node>();
+Node tmpN = null;
+Node tmpN2 = null;
+while(!courses.isEmpty())//loop until there are no more courses remaining
+{
+	System.out.print("\nSemester " + semester + ":");
+	noIncoming = getNoPreRecCourses();//list of courses with no prerequisites
+	for(int i = 0; i < noIncoming.size(); i++)//for each course with no prerequisites, remove the course and its outgoing edges
+	{
+		tmpN = noIncoming.get(i);
+		System.out.print(" CSC " + tmpN.getSource());
+		outgoing = getOutgoingCourses(tmpN);//list of outgoing courses for a node
+		for(int j = 0; j < outgoing.size(); j++)//loop through each outgoing course
+		{
+			tmpN2 = outgoing.get(j);
+			tmpN2.removeEdge(tmpN2.contains(tmpN.getSource()));//remove the course as a prerequisite
+		}
+		courses.remove(tmpN);//remove the course
+	}
+	total++;
+	semester++;
+}
+System.out.println("\nTotal semesters: " + total);
+}
+
+public static void main(String args[]){
+Graph g = new Graph("src/Courses.txt");
+System.out.println(g);
+g.total_Semesters();
+}
+}
+									</code>
+								</pre>
+								<h4>Video Demo</h4>
+								<video width="750" height="450" controls>
+									<source src="videos/TotalSemesters.mp4" type="video/mp4">
+								  Your browser does not support the video tag.
+								</video>
+								<ul class="actions special">
+									<li><a href="ShortestPath.html" class="button">Previous Assignment</a></li>
+									<li><a href="MontyHallProblem.html" class="button">Next Assignment</a></li>
+								</ul>
+							</section>
+
+					</div>
+
+				<!-- Footer -->
+				<footer id="footer">
+					<section class="split contact">
+						<section>
+							<h3>Email</h3>
+							<p><a href="#">tapia.ani28@gmail.com</a></p>
+						</section>
+					</section>
+				</footer>
+
+				<!-- Copyright -->
+					<div id="copyright">
+						<ul><li>&copy; Untitled</li><li>Design: <a href="https://html5up.net">HTML5 UP</a></li></ul>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

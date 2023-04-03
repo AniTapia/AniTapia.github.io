@@ -1,0 +1,349 @@
+<!DOCTYPE HTML>
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Monty Hall Problem</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<a href="index.html" class="logo">Ani Tapia Portfolio</a>
+					</header>
+
+					<nav id="nav">
+						<ul class="links">
+							<li><a href="index.html#intro">About Me</a></li>
+							<li><a href="index.html#Class Assignments">Class Assignments</a></li>
+							<li><a href="index.html#Education">Education</a></li>
+							<li><a href="#footer">Contact</a></li>
+						</ul>
+					</nav>
+
+
+				<!-- Main -->
+					<div id="main">
+
+						<!-- Post -->
+							<section class="post">
+								<header class="major">
+									<h1>Monty Hall Problem</h1>
+									<p>This java program simulates the classic monty hall problem to determine which decision gives the user better chance to win the prize</p>
+								</header>
+								<p>In the monty hall problem a contestant is given three doors in which one has the grand prize. They must choose
+									which door they think the grand prize is in, Door 1, Door 2, or Door 3. After the contestant chooses a door, the host Monty Hall
+									then opens one of the remaining two doors that does not have the grand prize. Now the grand prize is either in the remaining door,
+									or the first door chosen by the contestant. Before revealing where the grand prize is Monty Hall gives the contestant the option to switch.
+									The question now is, Should they switch?
+								</p>
+								<p>That is the question this program attemps to answer. The user gets asked if they want to switch or not. Then the monty hall problem is simulated
+									over 10,000 times. Each time the program will either always switch or never swich based on the user decided. In the end it displays the winning
+									percentage for the user to see. The user also has the option to play a game themselves and see if they can win the grandprize.
+								</p>
+								<h4>Door.java</h4>
+								<pre>
+									<code>
+public class Door {
+	boolean open;
+	boolean hasGrandPrize;
+	boolean chosenByContestant;
+}										
+									</code>
+								</pre>
+								<h4>Game.java</h4>
+								<pre>
+									<code>
+import java.util.Random;
+import java.util.Scanner;
+public class Game {
+	static Random r = new Random();
+	Scanner in = new Scanner(System.in);
+	int contestantDoor, montyDoor, grandPrizeDoor;
+	String input;
+	boolean doorSwitch;
+	void setUpGame(){
+		grandPrizeDoor = r.nextInt(1,4);
+		contestantDoor = 0;
+		montyDoor = 0;
+	}
+	void contestantChooseDoor() {
+		System.out.print("\n\nThe grand prize in one of these doors: Door 1 | Door 2 | Door 3\nChoose the door you think the prize is in (1)(2)(3): ");
+		contestantDoor = in.nextInt();
+		System.out.println("\nYou have chosen Door " + contestantDoor + ".");
+		System.out.print("Enter any key to continue: ");
+		input = in.next();
+	}
+	void montyopendoor(){
+		int doortoOpen = r.nextInt(2);
+		if(contestantDoor == 1){
+			if(grandPrizeDoor == 1){
+				switch (doortoOpen){ case 0:montyDoor = 2;break; case 1:montyDoor = 3;break;}
+			}
+			else{
+				if(grandPrizeDoor == 2){montyDoor = 3;}else {montyDoor = 2;}
+			}
+		}
+		if(contestantDoor == 2){
+			if(grandPrizeDoor == 2){
+				switch (doortoOpen){ case 0:montyDoor = 1;break; case 1:montyDoor = 3;break;}
+			}
+			else{
+				if(grandPrizeDoor == 1){montyDoor = 3;}else {montyDoor = 1;}
+			}
+		}
+		if(contestantDoor == 3){
+			if(grandPrizeDoor == 2){
+				switch (doortoOpen){ case 0:montyDoor = 1;break; case 1:montyDoor = 2;break;}
+			}
+			else{
+				if(grandPrizeDoor == 2){montyDoor = 1;}else {montyDoor = 2;}
+			}
+		}
+		System.out.println("\nMonty has opened Door " + montyDoor + ".");
+		System.out.print("Enter any key to continue: ");
+		input = in.next();
+	}
+	void contestantswitch(){
+		if(contestantDoor == 1){
+			if(montyDoor == 2){contestantDoor = 3;} else{contestantDoor = 2;}
+		}
+		else if(contestantDoor == 2){
+			if(montyDoor == 1){contestantDoor = 3;}else{contestantDoor = 1;}
+		}
+		else if(contestantDoor == 3){
+			if(montyDoor == 1){contestantDoor = 2;}else{contestantDoor = 1;}
+		}
+	}
+	boolean constestantWin(){
+		if(contestantDoor == grandPrizeDoor)return true;
+		else return false;
+	}
+	void result(){
+		System.out.println("\nThe grand prize is in Door " + grandPrizeDoor + ".");
+		if(constestantWin()) System.out.println("Congratulations! You have won the grand prize!");
+		else System.out.println("Unfortunately you did not win the grand prize.");
+		System.out.print("\nEnter 0 to play another game, 1 to simulate 10,000 games or any key to quit: ");
+		input = in.next();
+		if(input.equals("0"))playGame();
+		else if(input.equals("1"))
+		{
+			Simulation aSim = new Simulation();
+			aSim.runSimulation();
+		}
+		else System.out.print("Have a wonderful day");
+	}
+	void playGame(){
+		setUpGame();
+		contestantChooseDoor();
+		montyopendoor();
+		System.out.print("\nEnter 0 to switch your Door or any key to keep it: ");
+		input = in.next();
+		if(input.equals("0")){
+			contestantswitch();
+			System.out.println("\nYou have chosen to switch. Your Door is now Door " + contestantDoor + ".");
+		}
+		else{
+			System.out.println("\nYou have chosen to keep your Door. You still have Door " + contestantDoor + ".");
+		}
+		System.out.print("Enter any key to continue: ");
+		input = in.next();
+		result();
+	}
+}
+									</code>
+								</pre>
+								<h4>Simulation.java</h4>
+								<pre>
+									<code>
+import java.util.*;
+public class Simulation {
+	Door door1, door2, door3;
+	static Random r = new Random();
+	void setUpGame() {
+		door1 = new Door();door2 = new Door();door3 = new Door();
+		door1.open = false;door1.chosenByContestant=false;door1.hasGrandPrize=false;
+		door2.open = false;door2.chosenByContestant=false;door2.hasGrandPrize=false;
+		door3.open = false;door3.chosenByContestant=false;door3.hasGrandPrize=false;
+
+		int grandPrizeDoor = r.nextInt(3);
+		switch(grandPrizeDoor) {
+			case 0: door1.hasGrandPrize = true; break;
+			case 1: door2.hasGrandPrize = true; break;
+			case 2: door3.hasGrandPrize = true; break;
+		}
+	}
+	void printStateOfDoors() {
+		System.out.println("Door 1 is " +
+				(door1.open ? "    OPEN, " : "not open, ") +
+				(door1.hasGrandPrize ? "is     THE GRAND PRIZE, and " : "is not the grand prize, and ") +
+				(door1.chosenByContestant ? "is     CHOSEN." : "is not chosen.") );
+		System.out.println("Door 2 is " +
+				(door2.open ? "    OPEN, " : "not open, ") +
+				(door2.hasGrandPrize ? "is     THE GRAND PRIZE, and " : "is not the grand prize, and ") +
+				(door2.chosenByContestant ? "is     CHOSEN." : "is not chosen.") );
+		System.out.println("Door 3 is " +
+				(door3.open ? "    OPEN, " : "not open, ") +
+				(door3.hasGrandPrize ? "is     THE GRAND PRIZE, and " : "is not the grand prize, and ") +
+				(door3.chosenByContestant ? "is     CHOSEN." : "is not chosen.") );
+	}
+	void contestantChooseDoor() {
+		int contestantDoor = r.nextInt(3);
+		switch(contestantDoor) {
+			case 0: door1.chosenByContestant = true; break;
+			case 1: door2.chosenByContestant = true; break;
+			case 2: door3.chosenByContestant = true; break;
+		}
+	}
+	void montyopendoor(){
+		int doortoOpen = r.nextInt(2);
+		if(door1.chosenByContestant){
+			if(door1.hasGrandPrize){
+				switch (doortoOpen){ case 0:door2.open = true;break; case 1:door3.open = true;break;}
+			}
+			else{
+				if(door2.hasGrandPrize){door3.open = true;}else {door2.open = true;}
+			}
+		}
+		if(door2.chosenByContestant){
+			if(door2.hasGrandPrize){
+				switch (doortoOpen){ case 0:door1.open = true;break; case 1:door3.open = true;break;}
+			}
+			else{
+				if(door1.hasGrandPrize){door3.open = true;}else {door1.open = true;}
+			}
+		}
+		if(door3.chosenByContestant){
+			if(door3.hasGrandPrize){
+				switch (doortoOpen){ case 0:door1.open = true;break; case 1:door2.open = true;break;}
+			}
+			else{
+				if(door2.hasGrandPrize){door1.open = true;}else {door2.open = true;}
+			}
+		}
+	}
+	void contestantswitch(){
+			if(door1.chosenByContestant){
+				door1.chosenByContestant=false;
+				if(door2.open){ door3.chosenByContestant = true; } else{ door2.chosenByContestant = true; }
+			}
+			else if(door2.chosenByContestant){
+				door2.chosenByContestant=false;
+				if(door1.open){door3.chosenByContestant=true;}else{door1.chosenByContestant=true;}
+			}
+			else if(door3.chosenByContestant){
+				door3.chosenByContestant=false;
+				if(door1.open){door2.chosenByContestant=true;}else{door1.chosenByContestant=true;}
+			}
+	}
+	double result(double gameswon){
+		if(door1.chosenByContestant && door1.hasGrandPrize){gameswon++;}
+		else if(door2.chosenByContestant && door2.hasGrandPrize){gameswon++;}
+		else if(door3.chosenByContestant && door3.hasGrandPrize){gameswon++;}
+		return gameswon;
+	}
+	void runSimulation() {
+		int alwaysSwitch;
+		double gameswon = 0;
+		double percent;
+		Scanner in = new Scanner(System.in);
+		System.out.print("Enter 0 to always switch, or another key to never switch: ");
+		String input = in.nextLine();
+		if(input.equals("0")){alwaysSwitch = 0;}else {alwaysSwitch = 1;}
+
+		for(int i = 0; i < 10000; i++){
+			setUpGame();
+			contestantChooseDoor();
+			montyopendoor();
+			if (alwaysSwitch == 0) {
+				contestantswitch();
+			}
+			gameswon = result(gameswon);
+		}
+		percent = (gameswon / 10000)*100;
+		System.out.println("Games won = "+gameswon+"/ 10000 = % "+percent);
+		System.out.print("\nEnter 0 to play yourself, 1 to simulate another 10,000 games or any key to quit: ");
+		input = in.next();
+		if(input.equals("0")){
+			Game aGame = new Game();
+			aGame.playGame();
+		}
+		else if(input.equals("1"))runSimulation();
+		else System.out.print("Have a wonderful day");
+	}
+}
+									</code>
+								</pre>
+								<h4>Main.java</h4>
+								<pre>
+									<code>
+import java.util.Scanner;
+public class Main {
+	public static void main(String args[]) {
+		String input;
+		Scanner in = new Scanner(System.in);
+		System.out.print("Enter 0 to play yourself or any key to simulate 10,000 games: ");
+		input = in.nextLine();
+		if(input.equals("0")) {
+			Game theGame = new Game();
+			theGame.playGame();
+		}
+		else{
+			Simulation theSim = new Simulation();
+			theSim.runSimulation();
+		}
+	}
+}
+									</code>
+								</pre>
+								<h4>Video Demo</h4>
+								<video width="750" height="450" controls>
+									<source src="videos/MontyHall.mp4" type="video/mp4">
+								  Your browser does not support the video tag.
+								</video>
+								<ul class="actions special">
+									<li><a href="TotalSemesters.html" class="button">Previous Assignment</a></li>
+									<li><a href="EightBall.html" class="button">Next Assignment</a></li>
+								</ul>
+							</section>
+
+					</div>
+
+				<!-- Footer -->
+				<footer id="footer">
+					<section class="split contact">
+						<section>
+							<h3>Email</h3>
+							<p><a href="#">tapia.ani28@gmail.com</a></p>
+						</section>
+					</section>
+				</footer>
+
+				<!-- Copyright -->
+					<div id="copyright">
+						<ul><li>&copy; Untitled</li><li>Design: <a href="https://html5up.net">HTML5 UP</a></li></ul>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>
